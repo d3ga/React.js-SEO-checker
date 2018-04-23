@@ -1,2 +1,1 @@
 # SEO-checker
-# SEO-checker

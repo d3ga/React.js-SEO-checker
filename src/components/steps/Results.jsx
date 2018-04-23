@@ -1,7 +1,8 @@
-import React, { Fragment } from "react";
+import React from "react";
 import Result from "./Result";
 import OnPageCheck from "../../modules/OnPageCheck";
 import Axios from "axios";
+import jsPDF from "jspdf";
 
 class Results extends React.Component {
   state = {
@@ -11,6 +12,8 @@ class Results extends React.Component {
 
   async componentDidMount() {
     const website = this.props.url;
+    // const website = "https://kostasdegaitas.de/";
+
     const proxiedWebsite = `http://cors-proxy.htmldriven.com/?url=${website}`;
 
     let response = "";
@@ -20,8 +23,8 @@ class Results extends React.Component {
     } catch (error) {
       console.error(error);
     }
-
-    // console.log(OnPageCheck(response.data.body));
+    console.log(response);
+    console.log(OnPageCheck(response.data.body));
 
     this.setState(state => {
       state.loading = false;
@@ -30,17 +33,30 @@ class Results extends React.Component {
     });
   }
 
-  savePdf = () => {
-    console.log("State", this.state);
+  savePdf = e => {
+    e.preventDefault();
+
+    const pdf = new jsPDF({
+      orientation: "p",
+      unit: "mm",
+      format: "a4"
+    });
+
+    const source = document.querySelector(".form-group");
+
+    pdf.fromHTML(source, 15, 15);
+
+    pdf.save("PageCheckReport.pdf");
   };
 
   render() {
     return (
-      <Fragment>
-        <h3>Results</h3>
+      <div className="form-group">
+        <h3 className="text-center">Results for</h3>
+        <p className="text-center font-weight-bold">{this.props.url}</p>
 
         {this.state.loading === false && (
-          <Fragment>
+          <div>
             <Result
               title="Meta Description"
               result={this.state.results.meta.description}
@@ -54,9 +70,9 @@ class Results extends React.Component {
             >
               Save PDF
             </button>
-          </Fragment>
+          </div>
         )}
-      </Fragment>
+      </div>
     );
   }
 }
